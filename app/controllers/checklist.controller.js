@@ -5,18 +5,22 @@ const Op = db.Sequelize.Op;
 
 // Create and Save a new Checklist
 exports.create = async (req, res) => {
-  
-  // const currentDate = new Date();
+  const getLastCheck = await Checklist.findOne({
+    where: { airId: req.body.airId },
+    order: [["createdAt", "DESC"]],
+  });
 
-  // if (
-  //   getCheckId.createdAt.toLocaleDateString() ===
-  //   currentDate.toLocaleDateString()
-  // ) {
-  //   res.send({
-  //     message: `คุณได้สร้างรายการวันนี้ไปแล้ว`,
-  //   });
-  //   return;
-  // }
+  const currentDate = new Date();
+  const lastChecked = getLastCheck == null ? getLastCheck : getLastCheck.createdAt.toLocaleDateString();
+  
+
+  if (lastChecked === currentDate.toLocaleDateString()) {
+    res.send({
+      message: `Today's checklist has been created.`,
+      createStatus : 0
+    });
+    return;
+  }
 
   // Create a Checklist
   const checklist = {
@@ -61,7 +65,7 @@ exports.create = async (req, res) => {
       const nextCheck = data.createdAt.setMonth(data.createdAt.getMonth() + 6);
 
       await Checklist.update(
-        { no: "CL" + ("00000" + (data.id)).slice(-5)},
+        { no: "CL" + ("00000" + data.id).slice(-5) },
         {
           where: {
             id: data.id,
@@ -155,7 +159,7 @@ exports.deleteAll = (req, res) => {};
 // Find all published Tutorials
 exports.findAllPublished = (req, res) => {};
 
-// Find all published Tutorials
+// Find all By AirId
 exports.findAllByAirId = (req, res) => {
   const id = req.params.id;
 
