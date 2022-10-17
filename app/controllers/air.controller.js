@@ -39,7 +39,6 @@ exports.create = async (req, res) => {
   // Save Air in the database
   await Air.create(air)
     .then(async (data) => {
-      
       await Air.update(
         { no: "A" + getPlaceCode.code + data.id },
         {
@@ -47,7 +46,7 @@ exports.create = async (req, res) => {
             id: data.id,
           },
         }
-      )
+      );
       res.send(data);
     })
     .catch((err) => {
@@ -85,7 +84,25 @@ exports.findAll = (req, res) => {
 };
 
 // Find a single Air with an id
-exports.findOne = (req, res) => {};
+exports.findOne = (req, res) => {
+  const id = req.params.id;
+
+  Air.findByPk(id)
+    .then((data) => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find Air with id=${id}.`,
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Error retrieving Air with id=" + id,
+      });
+    });
+};
 
 // Update a Air by the id in the request
 exports.update = (req, res) => {

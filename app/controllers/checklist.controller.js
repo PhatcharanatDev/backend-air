@@ -11,13 +11,15 @@ exports.create = async (req, res) => {
   });
 
   const currentDate = new Date();
-  const lastChecked = getLastCheck == null ? getLastCheck : getLastCheck.createdAt.toLocaleDateString();
-  
+  const lastChecked =
+    getLastCheck == null
+      ? getLastCheck
+      : getLastCheck.createdAt.toLocaleDateString();
 
   if (lastChecked === currentDate.toLocaleDateString()) {
     res.send({
       message: `Today's checklist has been created.`,
-      createStatus : 0
+      createStatus: 0,
     });
     return;
   }
@@ -126,7 +128,29 @@ exports.findOne = (req, res) => {
 };
 
 // Update a Tutorial by the id in the request
-exports.update = (req, res) => {};
+exports.update = (req, res) => {
+  const id = req.params.id;
+
+  Checklist.update(req.body, {
+    where: { id: id },
+  })
+    .then((num) => {
+      if (num == 1) {
+        res.send({
+          message: "Checklist was updated successfully.",
+        });
+      } else {
+        res.send({
+          message: `Cannot update checklist with id=${id}. Maybe Checklist was not found or req.body is empty!`,
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Error updating Air with id=" + id,
+      });
+    });
+};
 
 // Delete a Tutorial with the specified id in the request
 exports.delete = (req, res) => {
